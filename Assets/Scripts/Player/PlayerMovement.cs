@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     private Animator animator; // Added to handle animations
     private bool isMoving; // Declare isMoving variable
     private SpriteRenderer spriteRenderer; // Added to handle sprite flipping
+    private Vector2 screenBounds; // Added to store screen bounds
 
     void Start()
     {
@@ -18,6 +19,7 @@ public class PlayerMovement : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>(); // Initialize the SpriteRenderer component
         isMoving = false; // Initialize isMoving as false
         animator.SetBool("isMoving", isMoving);
+        screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z)); // Calculate screen bounds
     }
 
     void Update()
@@ -40,6 +42,9 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        Vector2 newPosition = rb.position + movement * moveSpeed * Time.fixedDeltaTime;
+        newPosition.x = Mathf.Clamp(newPosition.x, -screenBounds.x, screenBounds.x); // Clamp x position to screen bounds
+        newPosition.y = Mathf.Clamp(newPosition.y, -screenBounds.y, screenBounds.y); // Clamp y position to screen bounds
+        rb.MovePosition(newPosition);
     }
 }

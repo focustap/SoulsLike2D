@@ -5,19 +5,19 @@ public class FistMovement : MonoBehaviour
 {
     public float speed = 5f;
     public float slamSpeed = 10f;
-    public float returnSpeed = 2f; // Speed at which the fist returns to max height
+    public float returnSpeed = 2f; // Speed at which the fist returns to its position before the slam
     public float minHeight = 0.5f;
     public float maxHeight = 5f;
     private bool slamming = false;
     private bool returning = false; // Added returning state
     private bool shaking = false;
     private Vector3 startPosition;
+    private Vector3 preSlamPosition; // Position before the slam
     private Vector3 slamPosition;
     private Camera mainCamera;
     private GameObject player;
     private float shakeDuration = 0.5f;
     private float shakeMagnitude = 0.1f;
-    private bool movingRight = true; // Added to control direction
 
     void Start()
     {
@@ -31,28 +31,14 @@ public class FistMovement : MonoBehaviour
     {
         if (!slamming && !returning)
         {
-            // Move horizontally across the max height
-            float step = speed * Time.deltaTime;
-            if (movingRight)
-            {
-                transform.position += new Vector3(step, 0, 0);
-                if (transform.position.x > mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, 0, 0)).x)
-                {
-                    movingRight = false; // Change direction
-                }
-            }
-            else
-            {
-                transform.position -= new Vector3(step, 0, 0);
-                if (transform.position.x < mainCamera.ScreenToWorldPoint(new Vector3(0, 0, 0)).x)
-                {
-                    movingRight = true; // Change direction
-                }
-            }
+            // Move towards the player's position at maxHeight
+            Vector3 playerPositionAtMaxHeight = new Vector3(player.transform.position.x, maxHeight, transform.position.z);
+            transform.position = Vector3.MoveTowards(transform.position, playerPositionAtMaxHeight, speed * Time.deltaTime);
 
             // Check if player is directly below
             if (Mathf.Abs(transform.position.x - player.transform.position.x) < 0.5f && !shaking)
             {
+                preSlamPosition = transform.position; // Save current position before starting the shake
                 StartCoroutine(Shake());
             }
         }
@@ -63,14 +49,14 @@ public class FistMovement : MonoBehaviour
             if (Mathf.Abs(transform.position.y - minHeight) < 0.01f)
             {
                 slamming = false; // Reset slamming state
-                returning = true; // Start returning to start position
+                returning = true; // Start returning to pre-slam position
             }
         }
         else if (returning)
         {
-            // Smoothly return to start position
-            transform.position = Vector3.MoveTowards(transform.position, startPosition, returnSpeed * Time.deltaTime);
-            if (transform.position == startPosition)
+            // Smoothly return to pre-slam position
+            transform.position = Vector3.MoveTowards(transform.position, preSlamPosition, returnSpeed * Time.deltaTime);
+            if (transform.position == preSlamPosition)
             {
                 returning = false; // Reset returning state
             }
