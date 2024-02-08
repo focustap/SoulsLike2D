@@ -1,0 +1,4 @@
+repository "SoulsLike2D@xfocustapx@cloud"
+  path "/"
+    br "/main"
+    co "/main"
