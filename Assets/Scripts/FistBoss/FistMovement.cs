@@ -18,6 +18,7 @@ public class FistMovement : MonoBehaviour
     private GameObject player;
     private float shakeDuration = 0.5f;
     private float shakeMagnitude = 0.1f;
+    public ParticleSystem slamEffect; // Particle system for the slam effect
 
     void Start()
     {
@@ -44,12 +45,14 @@ public class FistMovement : MonoBehaviour
         }
         else if (slamming)
         {
-            // Slam down
-            transform.position = Vector3.MoveTowards(transform.position, slamPosition, slamSpeed * Time.deltaTime);
-            if (Mathf.Abs(transform.position.y - minHeight) < 0.01f)
+            // Slam down to the player's current y position, maintaining the fist's current x position
+            Vector3 playerPositionAtCurrentHeight = new Vector3(transform.position.x, player.transform.position.y, transform.position.z);
+            transform.position = Vector3.MoveTowards(transform.position, playerPositionAtCurrentHeight, slamSpeed * Time.deltaTime);
+            if (Vector3.Distance(transform.position, playerPositionAtCurrentHeight) < 0.01f)
             {
                 slamming = false; // Reset slamming state
                 returning = true; // Start returning to pre-slam position
+                CreateSlamEffect(); // Create particle effect at the point of impact
             }
         }
         else if (returning)
@@ -83,8 +86,19 @@ public class FistMovement : MonoBehaviour
 
         transform.position = originalPosition;
         slamming = true;
-        slamPosition = new Vector3(transform.position.x, minHeight, transform.position.z);
+        // Update slamPosition to target the player's current y position while maintaining the fist's x position
+        slamPosition = new Vector3(transform.position.x, player.transform.position.y, transform.position.z);
         shaking = false;
+    }
+
+    private void CreateSlamEffect()
+    {
+        if (slamEffect != null)
+        {
+            
+            var go = Instantiate(slamEffect, transform.position, Quaternion.identity);
+            go.transform.SetParent(this.transform);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
