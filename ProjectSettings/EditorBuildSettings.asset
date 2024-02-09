@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/FistBoss.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/SkillTree.unity
+    guid: 138aa9c88f48f6845877f02148de0877
+  - enabled: 1
+    path: Assets/Scenes/TitleScreen.unity
+    guid: 4e568530e7cf11d4096e46db172c85ec
   m_configObjects: {}
